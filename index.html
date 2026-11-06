@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#173b32">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kendi Anahtarım">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Kendi Anahtarım</title>
+<style>
+:root{--bg:#f3f5f2;--card:#fff;--ink:#18251f;--muted:#68756e;--green:#1d5948;--red:#b43d3d;--line:#e4e9e5}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 14px calc(22px + env(safe-area-inset-bottom))}
+header{padding:20px 4px 14px;color:var(--green)}h1{font-size:25px;margin:0 0 4px}header p{margin:0;color:var(--muted);font-size:13px}
+main{max-width:650px;margin:auto}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:15px;margin:10px 0;box-shadow:0 2px 8px #14271a08}.metric small{color:var(--muted);display:block}.metric strong{font-size:21px;display:block;margin-top:7px;overflow-wrap:anywhere}.green{color:var(--green)}.red{color:var(--red)}
+h2{font-size:17px;margin:2px 0 12px}.row{display:flex;justify-content:space-between;gap:10px;align-items:center}.field{margin:9px 0}label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}input,select{width:100%;padding:13px;border:1px solid var(--line);border-radius:11px;background:#fff;font:inherit;color:var(--ink)}button{border:0;border-radius:12px;padding:13px 15px;background:var(--green);color:white;font:600 15px inherit;cursor:pointer}button.secondary{background:#e8efeb;color:var(--green)}button.danger{background:#faeeee;color:var(--red)}.tabs{display:flex;gap:7px;flex-wrap:wrap}.tabs button{flex:1;min-width:90px}.item{border-top:1px solid var(--line);padding:11px 0}.item small{color:var(--muted)}.item button{padding:7px 10px;font-size:12px}.muted{color:var(--muted);font-size:12px;line-height:1.5}.full{width:100%}.progress{height:10px;background:#e7ece8;border-radius:20px;overflow:hidden;margin-top:9px}.progress span{height:100%;display:block;background:var(--green);width:0}.hidden{display:none}.install{background:#eaf1ed;border-radius:14px;padding:13px;margin:10px 0;color:#244b3e;font-size:13px;line-height:1.5}
+</style>
+</head>
+<body>
+<main>
+<header><h1>🔑 Kendi Anahtarım</h1><p>Kişisel bütçe ve araba birikim defterin</p></header>
+<div class="install"><b>iPhone'a kurulum:</b> Bu siteyi Safari'de aç → Paylaş simgesi → “Ana Ekrana Ekle”. Verilerin bu cihazda saklanır; iCloud veya otomatik bulut eşitlemesi yoktur. Düzenli yedek al.</div>
+<section class="grid">
+ <div class="card metric"><small>Bu ay gelir</small><strong class="green" id="income">0 ₺</strong></div>
+ <div class="card metric"><small>Bu ay gider</small><strong class="red" id="expense">0 ₺</strong></div>
+ <div class="card metric" style="grid-column:1/-1"><small>Bu ay kalan (gelir − gider)</small><strong id="balance">0 ₺</strong></div>
+</section>
+<section class="card">
+<h2>➕ İşlem ekle</h2>
+<div class="tabs"><button id="incomeTab" class="secondary" type="button">Gelir</button><button id="expenseTab" type="button">Gider</button></div>
+<div class="field"><label>Açıklama</label><input id="desc" placeholder="Örn. burs, yemek, market"></div>
+<div class="grid">
+<div class="field"><label>Tutar (₺)</label><input id="amount" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></div>
+<div class="field"><label>Tarih</label><input id="date" type="date"></div>
+</div>
+<div class="field"><label>Kategori</label><select id="category"><option>Diğer</option><option>Burs / Gelir</option><option>Yemek</option><option>Dışarı harcaması</option><option>Ulaşım</option><option>Sigara</option><option>Fatura</option><option>Kredi kartı ödemesi</option><option>Araba birikimi</option><option>Sağlık</option></select></div>
+<button class="full" id="add">İşlemi kaydet</button>
+<p class="muted">Not: Kredi kartıyla yaptığın alışverişi gider olarak kaydet. Kart ekstresini ödediğinde aynı harcamayı ikinci kez gider yazma; yalnızca borç bakiyesini güncelle.</p>
+</section>
+<section class="card">
+<h2>📅 İşlemler</h2>
+<div class="field"><label>Ay seç</label><input id="month" type="month"></div>
+<div id="transactions"></div>
+</section>
+<section class="card">
+<h2>💳 Borç ve birikim</h2>
+<div class="grid">
+<div class="field"><label>1. kart borcu (₺)</label><input id="card1" type="number" inputmode="decimal"></div>
+<div class="field"><label>2. kart borcu (₺)</label><input id="card2" type="number" inputmode="decimal"></div>
+<div class="field"><label>Altın + döviz birikimi (₺ karşılığı)</label><input id="savings" type="number" inputmode="decimal"></div>
+<div class="field"><label>Araba hedefi (₺)</label><input id="goal" type="number" inputmode="decimal"></div>
+</div>
+<button class="full" id="saveFinance">Borç ve hedefleri kaydet</button>
+<div class="row" style="margin-top:14px"><span class="muted">Toplam kart borcu</span><b id="debtTotal">0 ₺</b></div>
+<div class="row" style="margin-top:8px"><span class="muted">Araba hedefi ilerlemesi</span><b id="progressText">0%</b></div>
+<div class="progress"><span id="progressBar"></span></div>
+</section>
+<section class="card">
+<h2>📦 Yedekleme</h2>
+<div class="grid"><button class="secondary" id="export">Yedeği indir</button><button class="secondary" id="importBtn">Yedek yükle</button></div>
+<input class="hidden" id="file" type="file" accept="application/json">
+<p class="muted">Yedek dosyanı güvenli bir yerde sakla. Telefon değiştirirsen yeni cihazda yedeği yükleyebilirsin.</p>
+<button class="danger full" id="reset">Tüm verileri sıfırla</button>
+</section>
+<p class="muted">Kendi Anahtarım • Veriler yalnızca bu tarayıcıda tutulur. Uygulamayı silmeden veya tarayıcı verilerini temizlemeden önce yedek al.</p>
+</main>
+<script>
+const KEY='kendiAnahtarim_v1';
+const fmt=n=>Number(n||0).toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₺';
+const today=new Date(); const iso=d=>d.toISOString().slice(0,10);
+let data=JSON.parse(localStorage.getItem(KEY)||'null')||{
+ transactions:[],
+ finance:{card1:12255.41,card2:2018.19,savings:80000,goal:500000}
+};
+let type='expense';
+const $=id=>document.getElementById(id);
+$('date').value=iso(today);$('month').value=iso(today).slice(0,7);
+function persist(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function monthRows(){let m=$('month').value;return data.transactions.filter(t=>t.date.slice(0,7)===m)}
+function render(){
+ let rows=monthRows(), inc=rows.filter(t=>t.type==='income').reduce((a,t)=>a+t.amount,0), exp=rows.filter(t=>t.type==='expense').reduce((a,t)=>a+t.amount,0);
+ $('income').textContent=fmt(inc);$('expense').textContent=fmt(exp);$('balance').textContent=fmt(inc-exp);$('balance').className=inc-exp>=0?'green':'red';
+ $('transactions').innerHTML=rows.length?rows.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(t=>`<div class="item row"><div><b>${esc(t.desc)}</b><br><small>${esc(t.date)} · ${esc(t.category)}</small></div><div style="text-align:right"><b class="${t.type==='income'?'green':'red'}">${t.type==='income'?'+':'−'}${fmt(t.amount)}</b><br><button class="danger" data-del="${t.id}">Sil</button></div></div>`).join(''):'<p class="muted">Bu ay henüz işlem yok.</p>';
+ document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{data.transactions=data.transactions.filter(t=>t.id!==b.dataset.del);persist()});
+ $('card1').value=data.finance.card1;$('card2').value=data.finance.card2;$('savings').value=data.finance.savings;$('goal').value=data.finance.goal;
+ $('debtTotal').textContent=fmt(+data.finance.card1 + +data.finance.card2);
+ let p=data.finance.goal>0?Math.min(100,100*data.finance.savings/data.finance.goal):0;$('progressText').textContent=p.toFixed(1)+'%';$('progressBar').style.width=p+'%';
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+$('incomeTab').onclick=()=>{type='income';$('incomeTab').className='';$('expenseTab').className='secondary'};
+$('expenseTab').onclick=()=>{type='expense';$('expenseTab').className='';$('incomeTab').className='secondary'};
+$('add').onclick=()=>{let desc=$('desc').value.trim(),amount=Number($('amount').value),date=$('date').value;if(!desc||!amount||amount<=0||!date){alert('Açıklama, geçerli tutar ve tarih gir.');return}data.transactions.push({id:crypto.randomUUID(),desc,amount,date,type,category:$('category').value});$('desc').value='';$('amount').value='';persist()};
+$('month').onchange=render;
+$('saveFinance').onclick=()=>{data.finance={card1:Math.max(0,Number($('card1').value)||0),card2:Math.max(0,Number($('card2').value)||0),savings:Math.max(0,Number($('savings').value)||0),goal:Math.max(0,Number($('goal').value)||0)};persist();alert('Borç ve hedef bilgileri kaydedildi.')};
+$('export').onclick=()=>{let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='kendi-anahtarim-yedek.json';a.click();URL.revokeObjectURL(a.href)};
+$('importBtn').onclick=()=>$('file').click();
+$('file').onchange=async e=>{try{let x=JSON.parse(await e.target.files[0].text());if(!Array.isArray(x.transactions)||!x.finance)throw 0;data=x;persist();alert('Yedek yüklendi.')}catch{alert('Yedek dosyası okunamadı.')}};
+$('reset').onclick=()=>{if(confirm('Tüm işlemler, borç ve hedef bilgileri silinsin mi?')){localStorage.removeItem(KEY);data={transactions:[],finance:{card1:12255.41,card2:2018.19,savings:80000,goal:500000}};persist()}};
+render();
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body></html>
